@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Leadership Lab</title>
+<style>
+:root{--bg:#07111f;--card:#0e1b2d;--card2:#13243b;--text:#f8fafc;--muted:#a9b7ca;--accent:#7dd3fc;--accent2:#a78bfa;--line:#263953}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#17304d,#07111f 60%);min-height:100vh;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+.app{width:min(780px,100%);margin:auto;padding:18px 16px 35px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.brand{font-weight:800}.pill{font-size:12px;color:var(--muted);border:1px solid var(--line);padding:7px 10px;border-radius:99px}
+.card{background:rgba(14,27,45,.96);border:1px solid #243853;border-radius:26px;padding:24px;box-shadow:0 20px 60px #0006}.center{text-align:center}.hero{font-size:65px}.title{font-size:clamp(34px,8vw,52px);line-height:1.03;margin:0 0 10px}.sub,.resultText{color:var(--muted);line-height:1.6}.hidden{display:none}
+.btn{border:0;border-radius:15px;padding:14px 20px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#07111f;font-weight:850;cursor:pointer;margin-top:16px}.secondary{background:#172a43;color:white;border:1px solid var(--line)}
+.input{width:100%;padding:15px;background:#091728;border:1px solid var(--line);color:white;border-radius:14px;margin-top:10px;outline:0}.input:focus{border-color:var(--accent)}
+.counter{color:var(--muted);font-size:14px}.progress,.track{height:9px;background:#1b2b41;border-radius:99px;overflow:hidden}.progress{margin:14px 0 24px}.bar,.fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:.3s}.q{font-size:clamp(22px,5vw,30px);font-weight:750;line-height:1.3;margin:10px 0 20px}.option{width:100%;text-align:left;color:white;background:var(--card2);border:1px solid var(--line);padding:16px;margin:8px 0;border-radius:16px;cursor:pointer;line-height:1.35}.option:hover{border-color:var(--accent);background:#19304d}.option b{display:inline-flex;width:29px;height:29px;border-radius:9px;align-items:center;justify-content:center;background:#0b1829;margin-right:9px;color:var(--accent)}
+.resultEmoji{font-size:64px}.resultName{font-size:34px;font-weight:850;margin:7px 0}.scoreRow{margin:13px 0}.scoreHead{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px}.statgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:18px 0}.stat{padding:13px;background:#0a1728;border:1px solid var(--line);border-radius:14px}.stat strong{display:block;font-size:20px}.stat span{font-size:12px;color:var(--muted)}.actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}.note{font-size:12px;color:#8293a9;line-height:1.5;margin-top:18px}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="top"><div class="brand">👑 LEADERSHIP LAB</div><div class="pill">College Project</div></div>
+
+<section id="home" class="card center">
+<div class="hero">🧭</div>
+<h1 class="title">What Kind of Leader Are You?</h1>
+<p class="sub">Choose what you would actually do in realistic leadership situations. There are no right or wrong answers.</p>
+<input id="name" class="input" placeholder="Your name (optional)" maxlength="30">
+<button class="btn" onclick="begin()">Start Game →</button>
+<p class="note">7 leadership styles • 21 scenarios • about 5 minutes</p>
+</section>
+
+<section id="game" class="card hidden">
+<div class="counter" id="counter"></div>
+<div class="progress"><div id="bar" class="bar"></div></div>
+<div id="question" class="q"></div>
+<div id="options"></div>
+</section>
+
+<section id="result" class="card center hidden">
+<div id="emoji" class="resultEmoji"></div>
+<div class="counter">YOUR STRONGEST LEADERSHIP STYLE</div>
+<div id="resultName" class="resultName"></div>
+<p id="resultText" class="resultText"></p>
+<div id="stats" class="statgrid"></div>
+<div id="scores"></div>
+<div class="actions">
+<button class="btn" onclick="restart()">Play Again ↻</button>
+<button class="btn secondary" onclick="window.print()">Print Result</button>
+</div>
+<p class="note">Educational self-reflection prototype, not a validated psychological assessment.</p>
+</section>
+</div>
+
+<script>
+const TYPES={
+transactional:{label:"Transactional Leadership",emoji:"💼",desc:"You tend to lead through clear expectations, structure, performance standards, rewards and accountability."},
+transformational:{label:"Transformational Leadership",emoji:"🚀",desc:"You tend to inspire people around a shared vision, encourage change and motivate others to reach beyond the expected."},
+situational:{label:"Situational Leadership",emoji:"🔄",desc:"You naturally adapt your approach to the task, people and circumstances rather than using one style every time."},
+authentic:{label:"Authentic Leadership",emoji:"🪞",desc:"You value self-awareness, honesty, transparency and decisions consistent with your values."},
+servant:{label:"Servant Leadership",emoji:"🤝",desc:"You put people first, listen, support development and focus on helping the team succeed."},
+trait:{label:"Trait Theory",emoji:"⭐",desc:"Your choices emphasize personal leadership qualities such as confidence, initiative, resilience and decisiveness."},
+ethical:{label:"Ethical Leadership",emoji:"⚖️",desc:"You strongly consider integrity, fairness, responsibility and the effects of decisions on others."}
+};
+
+const questions=[
+["Your team misses an important deadline. What is your first response?",["Set clear expectations and explain consequences.","Remind everyone of the bigger goal and rally the team.","Find out why it happened and change your approach accordingly.","Own your part in the problem and discuss it honestly.","Ask what support the team needs to recover.","Take initiative and organize a recovery plan.","Make sure the solution is fair to everyone."]],
+["A quiet teammate rarely speaks in meetings. What do you do?",["Ask them to contribute because everyone's role matters.","Show how their ideas could help change the project.","Use a one-to-one conversation if that suits them better.","Tell them honestly that you value their perspective.","Listen privately and find out how you can support them.","Challenge them to build confidence and speak up.","Make sure louder members do not dominate unfairly."]],
+["Two strong team members disagree about a project direction.",["Set a decision process and use agreed criteria.","Create a shared vision combining the strongest ideas.","Choose the approach that fits the current situation.","Be transparent about what you believe and why.","Help both people feel heard before moving forward.","Step in confidently and make the call if needed.","Choose the option that is fairest and most responsible."]],
+["Your team is losing motivation halfway through a difficult project.",["Introduce milestones and recognize people who hit them.","Reconnect everyone with why the project matters.","Try a different motivational approach for each person.","Share honestly that the challenge is difficult for you too.","Ask what obstacles you can remove for the team.","Lead by example and show persistence.","Check whether the workload is distributed fairly."]],
+["You discover a mistake that could make your team look bad.",["Fix it quickly and review the process that failed.","Turn it into a learning opportunity and improve the approach.","Decide how much intervention is needed based on impact.","Own the mistake openly, even if it was yours.","Support the person who made the mistake while fixing it.","Stay calm and take charge of the recovery.","Tell the truth and avoid unfair blame."]],
+["A new member needs guidance while an experienced member wants freedom.",["Give both clear responsibilities and standards.","Give each person a challenge that helps them grow.","Give different levels of direction based on experience.","Explain openly why your expectations differ.","Support the new member and trust the experienced one.","Trust capable people to take ownership.","Make sure different treatment has fair reasons."]],
+["You have to decide with incomplete information.",["Use available facts and make a clear accountable decision.","Choose what best advances the long-term vision.","Adapt the decision as new information appears.","Tell the team what you know and do not know.","Ask the people affected for input first.","Trust your judgment and act decisively.","Choose the option with the most responsible consequences."]],
+["A team member asks for special treatment.",["Explain the rules and why they exist.","Find a creative solution that still supports the team's goals.","Consider the specific circumstances before deciding.","Explain your reasoning honestly.","Ask what difficulty is behind the request.","Make a confident decision without being pressured.","Apply fairness consistently and avoid favoritism."]],
+["Your team achieves something excellent.",["Reward strong performance and recognize results.","Celebrate it and set an even bigger vision.","Recognize people in ways that motivate each individual.","Give genuine credit and avoid taking praise yourself.","Highlight how everyone's contribution helped.","Use the success to build confidence for the next challenge.","Make sure recognition is shared fairly."]],
+["A friend on your team is underperforming.",["Have a direct conversation about expectations.","Help them reconnect with the purpose of the project.","Change your approach based on why they are struggling.","Be honest while remaining respectful.","Offer help before judging their performance.","Encourage them to take responsibility and improve.","Treat them by the same fair standards as everyone else."]],
+["Your team resists a major change you believe is necessary.",["Explain the new expectations and timeline.","Explain the vision and inspire people to embrace change.","Introduce the change gradually depending on the team.","Explain honestly why you believe the change is needed.","Listen to concerns and help people through the transition.","Take the lead and demonstrate confidence.","Check whether the change creates unfair consequences."]],
+["A decision benefits your team but disadvantages another group.",["Focus on your team's agreed responsibilities.","Find a solution that improves the wider organization.","Consider the context before choosing.","Be transparent about the trade-off.","Try to understand and support the other group too.","Take responsibility for making the difficult call.","Look for the fairest outcome, even if it costs your team."]],
+["You are under intense pressure and your team looks to you.",["Give clear instructions and keep everyone focused.","Keep morale high by reminding everyone what you're working toward.","Change your style depending on what each person needs.","Stay honest about the pressure without pretending everything is fine.","Ask how you can help the team cope.","Remain calm and show confidence.","Make sure pressure does not lead to unfair decisions."]],
+["At the end of a project, what matters most to you?",["Results, accountability and agreed standards.","Growth, impact and inspiring people to achieve more.","Learning what worked and adapting next time.","Knowing you led consistently with your values.","Knowing your team developed and felt supported.","Becoming stronger and more capable through the experience.","Knowing the outcome was responsible and fair."]],
+["A teammate proposes a risky idea that could greatly improve the project.",["Define conditions and measurable targets before approving it.","Explore how it could create a bigger breakthrough.","Judge whether the risk fits the current situation.","Ask the teammate to explain their reasoning honestly.","Help them develop the idea safely and thoughtfully.","Be willing to take initiative and back a bold move.","Check who could be affected and whether the risk is responsible."]],
+["Your team has different skill levels and one approach is not working for everyone.",["Use clear standards so everyone knows what success means.","Create a vision that gives everyone a reason to improve.","Change your coaching style for different people.","Ask for honest feedback about your leadership.","Spend extra time helping people who need it.","Build confidence and ownership in less experienced members.","Make sure opportunities and expectations are fair."]],
+["You receive criticism about your leadership.",["Ask for specific performance evidence and action points.","Use the criticism to improve your impact.","Decide what feedback matters based on the context.","Reflect honestly on whether the criticism is true.","Listen carefully and thank the person for speaking up.","Stay confident while being open to improvement.","Take it seriously if it reveals unfairness or harm."]],
+["A deadline forces you to choose between quality and speed.",["Set a minimum standard and manage performance against it.","Choose the option that protects the long-term vision.","Adapt based on how important the deadline really is.","Explain the trade-off openly to the team.","Ask the team what support would help maintain quality.","Make a decisive call and own the outcome.","Choose the option that avoids misleading or harming others."]],
+["You inherit a team with low trust.",["Create clear rules, roles and accountability.","Build a shared purpose that gives people something to believe in.","Start with whatever approach the current situation needs.","Model honesty and admit what you do not know.","Listen first and rebuild relationships through support.","Set the tone with confidence and consistent action.","Make fairness and integrity visible in everyday decisions."]],
+["Someone else gets credit for work your team did.",["Keep records and clarify responsibilities for future projects.","Use the moment to advocate for your team's impact and growth.","Choose whether to address it publicly or privately based on context.","Speak honestly about what happened without exaggerating.","Focus first on making sure your team feels valued.","Stand up confidently for the team's contribution.","Correct the record because accurate credit matters."]],
+["You have one final decision before the project launches.",["Check the agreed requirements and make the accountable call.","Ask whether the decision moves the project toward its biggest purpose.","Use the approach that best fits what is happening right now.","Choose what you can stand behind honestly.","Consider how the decision affects the people doing the work.","Trust yourself and commit to the decision.","Choose the option you believe is most responsible and fair."]]
+];
+
+let idx=0,name="",scores={};
+function reset(){scores={};Object.keys(TYPES).forEach(k=>scores[k]=0)}
+function begin(){name=document.getElementById("name").value.trim();reset();idx=0;home.classList.add("hidden");result.classList.add("hidden");game.classList.remove("hidden");render()}
+function render(){const q=questions[idx];counter.textContent=`Question ${idx+1} of ${questions.length}`;bar.style.width=(idx/questions.length*100)+"%";question.textContent=q[0];options.innerHTML="";q[1].forEach((text,n)=>{const b=document.createElement("button");b.className="option";b.innerHTML=`<b>${String.fromCharCode(65+n)}</b>${text}`;b.onclick=()=>choose(Object.keys(TYPES)[n]);options.appendChild(b)})}
+function choose(type){scores[type]++;idx++;if(idx<questions.length)render();else finish()}
+function finish(){game.classList.add("hidden");result.classList.remove("hidden");const sorted=Object.keys(TYPES).sort((a,b)=>scores[b]-scores[a]);const top=sorted[0],max=Math.max(...Object.values(scores));emoji.textContent=TYPES[top].emoji;resultName.textContent=(name?name+", ":"")+TYPES[top].label;resultText.textContent=TYPES[top].desc;stats.innerHTML=`<div class="stat"><strong>${scores[top]}/${questions.length}</strong><span>Top-style choices</span></div><div class="stat"><strong>${Math.round(scores[top]/questions.length*100)}%</strong><span>Profile strength</span></div>`;scoresBox.innerHTML=sorted.map(k=>`<div class="scoreRow"><div class="scoreHead"><span>${TYPES[k].emoji} ${TYPES[k].label}</span><b>${scores[k]} / ${max}</b></div><div class="track"><div class="fill" style="width:${scores[k]/max*100}%"></div></div></div>`).join("")}
+function restart(){result.classList.add("hidden");home.classList.remove("hidden")}
+const home=document.getElementById("home"),game=document.getElementById("game"),result=document.getElementById("result"),counter=document.getElementById("counter"),bar=document.getElementById("bar"),question=document.getElementById("question"),options=document.getElementById("options"),emoji=document.getElementById("emoji"),resultName=document.getElementById("resultName"),resultText=document.getElementById("resultText"),stats=document.getElementById("stats"),scoresBox=document.getElementById("scores");
+</script>
+</body>
+</html>
